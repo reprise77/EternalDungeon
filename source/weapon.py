@@ -16,8 +16,6 @@ class Weapon:
         self.image = self.textures.images_bow["bow_idle"]
         self.image_sword_1 = pg.image.load(os.path.join(self.player_image_path, "sword_1.png"))
         self.image_sword_2 = pg.image.load(os.path.join(self.player_image_path, "sword_2.png"))
-        self.image_sword_1 = pg.transform.rotate(self.image_sword_1, 45)
-        self.image_sword_2 = pg.transform.rotate(self.image_sword_2, 45)
         self.image_center = self.image.get_rect()
         self.rotated_image = self.image
         self.image_rect = (0, 0)
@@ -43,7 +41,7 @@ class Weapon:
         self.square_size = 110
         self.rotate = True
         self.sword_box = pg.Surface((self.square_size, self.square_size), pg.SRCALPHA)
-        self.sword_box.fill((255, 255, 255, 100))
+        self.sword_box.fill((255, 255, 255, 0))
         self.sword_rect = self.sword_box.get_rect()
         self.hit = False
         self.last_time = pg.time.get_ticks()
@@ -56,7 +54,6 @@ class Weapon:
         self.draw_sword_sound = self.sound_direct.sound["draw_sword"]
         self.draw_sword_sound.set_volume(0.7)
         self.draw_sword_flag = False
-        self.deflect_bullet = []
 
     def handle_mouse_rotation(self, player):
         mouse_pos = pg.mouse.get_pos()
@@ -160,8 +157,9 @@ class Weapon:
                 self.rotated_image = pg.transform.rotate(self.image, self.angle)
                 self.last_frame_time = pg.time.get_ticks()
 
-    def update(self, player, keys):
+    def update(self, player, keys, enemy):
         if player.player_hp > 1:
+            self.deflect_bullet(enemy, player)
             self.handle_mouse_rotation(player)
             self.use_weapon(keys)
             if self.current_use_weapon == 1:
@@ -178,7 +176,7 @@ class Weapon:
     def handle_animation_sword(self):
         current_time = pg.time.get_ticks()
         if pg.mouse.get_pressed()[0]:
-            if current_time - self.next_anim_time > 350:
+            if current_time - self.next_anim_time > 280:
                 self.next_anim_time = pg.time.get_ticks()
                 self.flag = not self.flag
         self.rotate_sword()
@@ -194,13 +192,13 @@ class Weapon:
             if not self.sword_flag:
                 self.swing_sword.play()
                 self.sword_flag = True
-            self.rotate_sword_angle += 12
+            self.rotate_sword_angle += 15
         elif self.flag == False and self.rotate_sword_angle != -180:
             self.sword_flag = False
             if not self.sword_flag_1:
                 self.swing_sword_1.play()
                 self.sword_flag_1 = True
-            self.rotate_sword_angle -= 12
+            self.rotate_sword_angle -= 15
 
     def use_weapon(self, keys):
         if keys[pg.K_1]:
@@ -232,25 +230,37 @@ class Weapon:
             if current_time - self.last_time > 350:
                 for enemy in enemys.enemies:
                     if enemy.rect.colliderect(self.sword_rect):
-                        enemy.enemy_hp -= 6 * enemys.percent_damage
+                        enemy.enemy_hp -= 2 * enemys.percent_damage
                         enemys.sound_shoot_enemy.play()
                         if enemy.enemy_hp <= 0:
                             enemys.enemies.remove(enemy)
                             hud.score += 40
                         self.last_time = pg.time.get_ticks()
-                    for bullet in enemy.enemy_bullets:
-                        if pg.mouse.get_pressed()[0] and bullet.rect.colliderect(self.sword_rect):
-                            enemy.enemy_bullets.remove(bullet)
+
 
     def arrow_fix(self, player, bullet):
         if player.player_hp <= 1 or self.current_use_weapon != 1:
             for arrow in bullet.arrows:
                 bullet.arrows.remove(arrow)
 
-    def enemy_deflect_fire(self, class_enemy):
-        for bullet in class_enemy.enemy_bullets:
-            if bullet.rect.colliderect(self.sword_rect):
-                self.deflect_bullet.append(bullet)
-                class_enemy.enemy_bullets.remove(bullet)
+    def deflect_bullet(self, enemys, player):
+        for enemy in enemys.enemies:
+            for bullet in enemy.enemy_bullets:
+                if bullet.rect.colliderect(enemy.rect) and bullet.deflect == True:
+                    enemy.enemy_hp -= 1
+                    if enemy.enemy_hp <= 0:
+                        enemys.enemies.remove(enemy)
+                    enemy.sound_shoot_enemy.play()
+                    enemy.enemy_bullets.remove(bullet)
+                cursor_pos = pg.mouse.get_pos()
+                for bullet in enemy.enemy_bullets:
+                    if pg.mouse.get_pressed()[0] and bullet.rect.colliderect(self.sword_rect):
+                        bullet.direction = math.atan2(cursor_pos[1] - player.rect.y - 2, cursor_pos[0] - player.rect.x - 50)
+                        bullet.deflect = True
+
+
+
+
+
 
 

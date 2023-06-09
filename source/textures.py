@@ -225,3 +225,18 @@ class Textures_Hud_Sound(pg.sprite.Sprite):
             "button": pg.mixer.Sound(os.path.join(sound_directory, "button.wav")),
             "draw_sword": pg.mixer.Sound(os.path.join(sound_directory, "draw_sword.wav")),
         }
+
+class Texture_Items(pg.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        items_directory = os.path.join(os.getcwd(), "assets", "material", "items")
+        self.items = {
+            "attack_1": pg.image.load(os.path.join(items_directory, "attack_1.png")),
+            "attack_2": pg.image.load(os.path.join(items_directory, "attack_2.png")),
+            "attack_3": pg.image.load(os.path.join(items_directory, "attack_3.png")),
+            "attack_pickup_1": pg.image.load(os.path.join(items_directory, "attack_pickup_1.png")),
+            "attack_pickup_2": pg.image.load(os.path.join(items_directory, "attack_pickup_2.png")),
+            "attack_pickup_3": pg.image.load(os.path.join(items_directory, "attack_pickup_3.png")),
+            "heal_potion": pg.image.load(os.path.join(items_directory, "heal_potion.png")),
+            "heal_potion_pickup": pg.image.load(os.path.join(items_directory, "heal_potion_pickup.png")),
+        }

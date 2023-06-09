@@ -13,9 +13,9 @@ import random
 
 pg.mixer.pre_init(44100, -16, 2, 512)
 pg.mixer.init()
-pg.mixer.music.load("eternal_soundtrack.mp3")
+pg.mixer.music.load("eternal.mp3")
 pg.mixer.music.play(-1)
-pg.mixer.music.set_volume(0.2)
+pg.mixer.music.set_volume(0.6)
 
 
 class Game:
@@ -127,7 +127,7 @@ class Game:
         character_rect = pg.Rect(self.player.rect.x + 30, self.player.rect.y + 10, 69, 84)
         if self.play_pause == False:
             self.player.update(self.dt, keys)
-            self.weapon.update(self.player, keys)
+            self.weapon.update(self.player, keys, self.enemy)
             self.enemy.update(self.player, self.dt, character_rect)
         self.last_time = pg.time.get_ticks()
         character_rect = pg.Rect(self.player.rect.x + 30, self.player.rect.y + 10, 69, 84)

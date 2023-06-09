@@ -16,12 +16,13 @@ class Bullet:
         self.rect.x = enemy_rect.x
         self.rect.y = enemy_rect.y
         self.enemy_rect = enemy_rect
-        self.speed = 350
+        self.speed = 330
         self.direction = 0
         self.target_x = player_x
         self.target_y = player_y
         self.direction = math.atan2(player_y - self.enemy_rect.y, player_x - self.enemy_rect.x)
         self.angle = 0
+        self.deflect = False
 
     def update(self, dt):
         self.rect.x += self.speed * dt * math.cos(self.direction)
@@ -31,7 +32,6 @@ class Bullet:
         rotated_image = pg.transform.rotate(self.image, self.angle)
         rotated_rect = rotated_image.get_rect(center=self.rect.center)
         window.blit(rotated_image, rotated_rect)
-
         self.angle += 1
 
 
@@ -193,6 +193,8 @@ class Enemy:
                 self.enemy_bullets.remove(bullet)
                 self.sound_shoot_player.play()
                 player.player_hp -= 1
+
+
 
     def update_bullets(self, dt):
         for bullet in self.enemy_bullets:

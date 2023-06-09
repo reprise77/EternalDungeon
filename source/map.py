@@ -28,6 +28,9 @@ class Map:
         self.count_enemy = 0
         self.count_flag = False
         self.next_room = ""
+        self.item_pick_up = False
+        self.get_pressed = False
+        self.random_attack_percent = random.randint(1, 3)
 
     def map_build(self, surface):  # Отображает все тайлы: текстуры
         self.wall_positions = []
@@ -180,7 +183,7 @@ class Map:
             self.count_flag = True
         if index != 0 and self.clear == False and self.count_enemy <= self.count_enemy_current:
             current_time = pg.time.get_ticks()
-            if current_time - self.last_tick > 300 and self.bonus != 1:
+            if current_time - self.last_tick > 300 and self.bonus > 4 :
                 enemy.spawn_enemy()
                 self.count_enemy += 1
                 self.last_tick = pg.time.get_ticks()
@@ -226,3 +229,4 @@ class Map:
             tilemap[6][18] = ' '
             tilemap[7][18] = ' '
             tilemap[8][18] = 'r2'
+

@@ -1,7 +1,10 @@
+import random
+
 import pygame as pg
 from map import Map
 from textures import Textures_Hud_Sound
 from textures import Textures_tile
+from object import Items
 
 
 class Map_generator:
@@ -10,10 +13,11 @@ class Map_generator:
         self.PLATFORM_HEIGHT = height * (1 / 15)
         self.ROOM_WIDTH = width
         self.ROOM_HEIGHT = height
+        self.items = Items()
         self.index = 0
         self.back_rooms = {
             0: self.index}
-        self.lobby = Map(window, width, height, self.back_rooms[self.index], 2)
+        self.lobby = Map(window, width, height, self.back_rooms[self.index], 10)
         self.rooms = {
             "room_0": self.lobby}
         self.sound = Textures_Hud_Sound()
@@ -49,12 +53,14 @@ class Map_generator:
                                        self.PLATFORM_HEIGHT * 3)
         self.down_collisian = pg.Rect(self.PLATFORM_WIDTH * 12, self.PLATFORM_HEIGHT * 12, self.PLATFORM_WIDTH * 3,
                                       self.PLATFORM_HEIGHT)
+        self.bonus_counter = 0
 
     def generate_world(self, window, character_rect, player, enemy, prev_rect):
         if f"room_{self.index}" not in self.rooms:
             self.rooms[f"room_{self.index}"] = Map(window, self.ROOM_WIDTH, self.ROOM_HEIGHT,
-                                                   self.back_rooms[self.index], 2)
+                                                   self.back_rooms[self.index], random.randint(1, 10))
         self.rooms[f"room_{self.index}"].map_build(window)
+        self.bonus_room(window, character_rect, player, enemy)
         self.wall_positions = self.rooms[f"room_{self.index}"].wall_positions
         self.lock_room(enemy, window, player, prev_rect)
         self.rooms[f"room_{self.index}"].stage_clear(enemy, self.index)
@@ -161,3 +167,28 @@ class Map_generator:
             if self.sound_flag:
                 self.sound_wall.play()
                 self.sound_flag = False
+
+    def bonus_room(self, window, character, player, enemy):
+        self.rooms[f"room_{self.index}"].item_pick_up = self.pick_up(character, player, enemy)
+        if self.rooms[f"room_{self.index}"].bonus == 1 and self.rooms[f"room_{self.index}"].item_pick_up == False:
+            self.items.healing_potion(window, character)
+        elif self.rooms[f"room_{self.index}"].bonus <=4 and self.rooms[f"room_{self.index}"].item_pick_up == False:
+            self.items.attack_up(window, character, self.rooms[f"room_{self.index}"].random_attack_percent)
+
+    def pick_up(self, character, player, enemy):
+        keys = pg.key.get_pressed()
+        if character.colliderect(self.items.potion_rect) and keys[pg.K_f] and self.rooms[f"room_{self.index}"].get_pressed == False:
+            if self.rooms[f"room_{self.index}"].bonus == 1:
+                player.player_hp += 3
+                if player.player_hp > 11:
+                    player.player_hp = 11
+            self.rooms[f"room_{self.index}"].get_pressed = True
+            return True
+        if character.colliderect(self.items.attack_rect) and keys[pg.K_f] and self.rooms[f"room_{self.index}"].get_pressed == False:
+            if self.rooms[f"room_{self.index}"].bonus <= 4:
+                enemy.percent_damage += 0.25
+            self.rooms[f"room_{self.index}"].get_pressed = True
+            return True
+        elif self.rooms[f"room_{self.index}"].get_pressed == False :
+            return False
+
