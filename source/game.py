@@ -13,7 +13,7 @@ import random
 
 pg.mixer.pre_init(44100, -16, 2, 512)
 pg.mixer.init()
-pg.mixer.music.load("eternal.mp3")
+pg.mixer.music.load("eternal_soundtrack.mp3")
 pg.mixer.music.play(-1)
 pg.mixer.music.set_volume(0.2)
 
